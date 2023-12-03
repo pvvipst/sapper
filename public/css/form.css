@@ -1,0 +1,36 @@
+#start-window {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    width: 100%;
+    max-width: 250px;
+}
+
+.form_element {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    width: 100%;
+}
+
+.form_element > span {
+    font-size: 20px;
+}
+
+.form_element-range label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 20px;
+}
+
+.form_element-range input {
+    width: 100%;
+}
+
+#start-window button {
+    width: 100%;
+    padding: 5px 0;
+}
+
+

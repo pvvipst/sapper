@@ -4,6 +4,7 @@ import type { TypeCell } from '@common/field/settings/_settings'
 
 interface IFieldParams {
   fieldSize: number
+  complexity: number
 }
 
 type IFiledGame = [number, TypeCell][][]

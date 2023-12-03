@@ -1,10 +1,12 @@
-import { random, TypeCell } from '@common/field/settings'
+import { CALC_COORDINATE, complexity, random, TypeCell } from '@common/field/settings'
+import { DEFAULT_PARAMS, TypeClassList } from '@app/options'
 
 import CreateElement from '@common/create-element'
-import { DEFAULT_PARAMS, TypeClassList } from '@app/options'
 import CellElement from '@app/cell-element'
 
 import type { IDocFieldElement, IFieldParams, IFiledGame } from '@common/field/settings'
+
+/* eslint-disable @typescript-eslint/no-magic-numbers */
 
 class Field {
 
@@ -17,23 +19,20 @@ class Field {
   constructor (params = DEFAULT_PARAMS) {
     this._params = params
     for (let i = 0; i < params.fieldSize; i++) {
-      const arr: [number, TypeCell][] = []
-      for (let j = 0; j < params.fieldSize; j++) {
-        arr.push([0, TypeCell.EMPTY])
-      }
-      this._field.push(arr)
+      this._field.push(Array.from({ length: 5 }, () => [0, TypeCell.EMPTY]))
     }
-  }
 
-  public run (): void {
     this._createField()
     this._calculateFiled()
     this._addingDocument()
   }
 
+  public static new (params: IFieldParams): Field {
+    return new Field(params)
+  }
+
   private _createField (): void {
-    // eslint-disable-next-line @typescript-eslint/no-magic-numbers
-    const countMine = random(this._params.fieldSize * 2, this._params.fieldSize * 3)
+    const countMine = complexity(this._params)
     const mineIndex: [number, number][] = []
 
     for (let i = 0; i < countMine; i++) {
@@ -65,14 +64,10 @@ class Field {
     for (let i = 0; i < this._params.fieldSize; i++) {
       for (let j = 0; j < this._params.fieldSize; j++) {
         if (this._field[i][j][1] === TypeCell.MINE) {
-          this._calculateValue(i + 1, j)
-          this._calculateValue(i - 1, j)
-          this._calculateValue(i + 1, j + 1)
-          this._calculateValue(i - 1, j - 1)
-          this._calculateValue(i, j + 1)
-          this._calculateValue(i, j - 1)
-          this._calculateValue(i - 1, j + 1)
-          this._calculateValue(i + 1, j - 1)
+          for (const item of CALC_COORDINATE) {
+            const [y, x] = item
+            this._calculateValue(i + y, j + x)
+          }
         }
       }
     }
@@ -99,38 +94,13 @@ class Field {
   private _checkEmptyField (i: number, j: number): void {
     const _arrEmptyCord: [number, number][] = []
     if (this._checkMineOrUndefined(i, j)) {
-      if (this._checkMineOrUndefined(i + 1, j) &&
-        (this._docField[i + 1][j].params.type === TypeCell.EMPTY ||
-          this._docField[i + 1][j].params.type === TypeCell.VALUE))
-        _arrEmptyCord.push([i + 1, j])
-      if (this._checkMineOrUndefined(i - 1, j) &&
-        (this._docField[i - 1][j].params.type === TypeCell.EMPTY ||
-          this._docField[i - 1][j].params.type === TypeCell.VALUE))
-        _arrEmptyCord.push([i - 1, j])
-      if (this._checkMineOrUndefined(i + 1, j + 1) &&
-        (this._docField[i + 1][j + 1].params.type === TypeCell.EMPTY ||
-          this._docField[i + 1][j + 1].params.type === TypeCell.VALUE))
-        _arrEmptyCord.push([i + 1, j + 1])
-      if (this._checkMineOrUndefined(i - 1, j - 1) &&
-        (this._docField[i - 1][j - 1].params.type === TypeCell.EMPTY ||
-          this._docField[i - 1][j - 1].params.type === TypeCell.VALUE))
-        _arrEmptyCord.push([i - 1, j - 1])
-      if (this._checkMineOrUndefined(i, j + 1) &&
-        (this._docField[i][j + 1].params.type === TypeCell.EMPTY ||
-          this._docField[i][j + 1].params.type === TypeCell.VALUE))
-        _arrEmptyCord.push([i, j + 1])
-      if (this._checkMineOrUndefined(i, j - 1) &&
-        (this._docField[i][j - 1].params.type === TypeCell.EMPTY ||
-          this._docField[i][j - 1].params.type === TypeCell.VALUE))
-        _arrEmptyCord.push([i, j - 1])
-      if (this._checkMineOrUndefined(i - 1, j + 1) &&
-        (this._docField[i - 1][j + 1].params.type === TypeCell.EMPTY ||
-          this._docField[i - 1][j + 1].params.type === TypeCell.VALUE))
-        _arrEmptyCord.push([i - 1, j + 1])
-      if (this._checkMineOrUndefined(i + 1, j - 1) &&
-        (this._docField[i + 1][j - 1].params.type === TypeCell.EMPTY ||
-          this._docField[i + 1][j - 1].params.type === TypeCell.VALUE))
-        _arrEmptyCord.push([i + 1, j - 1])
+      for (const item of CALC_COORDINATE) {
+        const [y, x] = item
+        if (this._checkMineOrUndefined(i + y, j + x) &&
+          (this._docField[i + y][j + x].params.type === TypeCell.EMPTY ||
+            this._docField[i + y][j + x].params.type === TypeCell.VALUE))
+          _arrEmptyCord.push([i + y, j + x])
+      }
     }
 
     for (const item of _arrEmptyCord) {

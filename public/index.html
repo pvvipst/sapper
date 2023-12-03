@@ -7,9 +7,31 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Document</title>
     <link rel="stylesheet" href="css/main.css">
+    <script defer src="js/main.js"></script>
 </head>
 <body>
 <main>
+    <form id="start-window">
+        <div class="form_element">
+            <span>Сложность</span>
+            <div class="form_element-range">
+                <label>
+                    <input id="form_element-input_complexity" type="range" name="complexity" min="4" max="10" value="5">
+                    <span id="form_element-count_complexity">5</span>
+                </label>
+            </div>
+        </div>
+        <div class="form_element">
+            <span>Размер поля</span>
+            <div class="form_element-range">
+                <label>
+                    <input id="form_element-input_field-size" type="range" name="fieldSize" min="5" max="20" value="10">
+                    <span id="form_element-count_field-size">10</span>
+                </label>
+            </div>
+        </div>
+        <button>Начать</button>
+    </form>
     <div id="container"></div>
 </main>
 </body>
