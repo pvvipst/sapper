@@ -32,7 +32,8 @@ class Field {
   }
 
   private _createField (): void {
-    const countMine = random(this._params.fieldSize, this._params.fieldSize * 2)
+    // eslint-disable-next-line @typescript-eslint/no-magic-numbers
+    const countMine = random(this._params.fieldSize * 2, this._params.fieldSize * 3)
     const mineIndex: [number, number][] = []
 
     for (let i = 0; i < countMine; i++) {
