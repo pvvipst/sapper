@@ -1,15 +1,16 @@
 import type { TypeCell } from '@common/field/settings'
 
-interface ICellElementParams {
+interface ICellElementProps {
+  x: number
+  y: number
   type: TypeCell
   value: number
-  isClick: boolean
-  typeClick: TypeCell | undefined
+  callback(i: number, j: number): void
 }
 
-interface ICellElementProps {
-  type: TypeCell
-  value: number
+interface ICellElementParams extends ICellElementProps {
+  isClick: boolean
+  typeClick: TypeCell | undefined
 }
 
 enum TypeMouseClick {

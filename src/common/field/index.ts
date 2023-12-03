@@ -1,12 +1,10 @@
 import { random, TypeCell } from '@common/field/settings'
 
 import CreateElement from '@common/create-element'
-import { TypeClassList } from '@app/options'
+import { DEFAULT_PARAMS, TypeClassList } from '@app/options'
 import CellElement from '@app/cell-element'
 
-import type { IFieldParams, IFiledGame } from '@common/field/settings'
-
-const _default = { fieldSize: 5 }
+import type { IDocFieldElement, IFieldParams, IFiledGame } from '@common/field/settings'
 
 class Field {
 
@@ -14,7 +12,9 @@ class Field {
 
   private _field: IFiledGame = []
 
-  constructor (params = _default) {
+  private _docField: IDocFieldElement = []
+
+  constructor (params = DEFAULT_PARAMS) {
     this._params = params
     for (let i = 0; i < params.fieldSize; i++) {
       const arr: [number, TypeCell][] = []
@@ -64,14 +64,14 @@ class Field {
     for (let i = 0; i < this._params.fieldSize; i++) {
       for (let j = 0; j < this._params.fieldSize; j++) {
         if (this._field[i][j][1] === TypeCell.MINE) {
-          this._checkMineOrUndefined(i + 1, j)
-          this._checkMineOrUndefined(i - 1, j)
-          this._checkMineOrUndefined(i + 1, j + 1)
-          this._checkMineOrUndefined(i - 1, j - 1)
-          this._checkMineOrUndefined(i, j + 1)
-          this._checkMineOrUndefined(i, j - 1)
-          this._checkMineOrUndefined(i - 1, j + 1)
-          this._checkMineOrUndefined(i + 1, j - 1)
+          this._calculateValue(i + 1, j)
+          this._calculateValue(i - 1, j)
+          this._calculateValue(i + 1, j + 1)
+          this._calculateValue(i - 1, j - 1)
+          this._calculateValue(i, j + 1)
+          this._calculateValue(i, j - 1)
+          this._calculateValue(i - 1, j + 1)
+          this._calculateValue(i + 1, j - 1)
         }
       }
     }
@@ -83,22 +83,80 @@ class Field {
     }
   }
 
-  private _checkMineOrUndefined (i: number, j: number): void {
+  private _checkMineOrUndefined (i: number, j: number): boolean {
     const _check = (q: number): boolean => this._field[q] === undefined
-    if (i < 0 || j < 0) return
-    if (_check(i) || _check(j)) return
-    if (this._field[i][j][1] !== TypeCell.MINE) this._field[i][j] = [this._field[i][j][0] += 1, TypeCell.VALUE]
+    if (i < 0 || j < 0) return false
+    return !_check(i) && !_check(j)
+  }
+
+  private _calculateValue (i: number, j: number): void {
+    if (this._checkMineOrUndefined(i, j)) {
+      if (this._field[i][j][1] !== TypeCell.MINE) this._field[i][j] = [this._field[i][j][0] += 1, TypeCell.VALUE]
+    }
+  }
+
+  private _checkEmptyField (i: number, j: number): void {
+    const _arrEmptyCord: [number, number][] = []
+    if (this._checkMineOrUndefined(i, j)) {
+      if (this._checkMineOrUndefined(i + 1, j) &&
+        (this._docField[i + 1][j].params.type === TypeCell.EMPTY ||
+          this._docField[i + 1][j].params.type === TypeCell.VALUE))
+        _arrEmptyCord.push([i + 1, j])
+      if (this._checkMineOrUndefined(i - 1, j) &&
+        (this._docField[i - 1][j].params.type === TypeCell.EMPTY ||
+          this._docField[i - 1][j].params.type === TypeCell.VALUE))
+        _arrEmptyCord.push([i - 1, j])
+      if (this._checkMineOrUndefined(i + 1, j + 1) &&
+        (this._docField[i + 1][j + 1].params.type === TypeCell.EMPTY ||
+          this._docField[i + 1][j + 1].params.type === TypeCell.VALUE))
+        _arrEmptyCord.push([i + 1, j + 1])
+      if (this._checkMineOrUndefined(i - 1, j - 1) &&
+        (this._docField[i - 1][j - 1].params.type === TypeCell.EMPTY ||
+          this._docField[i - 1][j - 1].params.type === TypeCell.VALUE))
+        _arrEmptyCord.push([i - 1, j - 1])
+      if (this._checkMineOrUndefined(i, j + 1) &&
+        (this._docField[i][j + 1].params.type === TypeCell.EMPTY ||
+          this._docField[i][j + 1].params.type === TypeCell.VALUE))
+        _arrEmptyCord.push([i, j + 1])
+      if (this._checkMineOrUndefined(i, j - 1) &&
+        (this._docField[i][j - 1].params.type === TypeCell.EMPTY ||
+          this._docField[i][j - 1].params.type === TypeCell.VALUE))
+        _arrEmptyCord.push([i, j - 1])
+      if (this._checkMineOrUndefined(i - 1, j + 1) &&
+        (this._docField[i - 1][j + 1].params.type === TypeCell.EMPTY ||
+          this._docField[i - 1][j + 1].params.type === TypeCell.VALUE))
+        _arrEmptyCord.push([i - 1, j + 1])
+      if (this._checkMineOrUndefined(i + 1, j - 1) &&
+        (this._docField[i + 1][j - 1].params.type === TypeCell.EMPTY ||
+          this._docField[i + 1][j - 1].params.type === TypeCell.VALUE))
+        _arrEmptyCord.push([i + 1, j - 1])
+    }
+
+    for (const item of _arrEmptyCord) {
+      const [y, x] = item
+      this._docField[y][x].leftClick()
+    }
   }
 
   private _addingDocument (): void {
     const _doc = document.getElementById('container')!
 
-    for (const row of this._field) {
+    for (let i = 0; i < this._field.length; i++) {
       const rowElements = new CreateElement({ tag: 'div', className: [TypeClassList.ROW]}).element
-      for (const item of row) {
-        const [value, type] = item
-        rowElements.append(CellElement.new({ type, value }).element)
+      const _rowElements: CellElement[] = []
+      for (let j = 0; j < this._field[i].length; j++) {
+        const [value, type] = this._field[i][j]
+        const _element = CellElement.new({
+          x: j,
+          y: i,
+          type,
+          value,
+          callback: this._checkEmptyField.bind(this)
+        })
+        rowElements.append(_element.element)
+        _rowElements.push(_element)
       }
+      this._docField.push(_rowElements)
       _doc.appendChild(rowElements)
     }
   }

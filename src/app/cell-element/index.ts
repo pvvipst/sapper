@@ -16,15 +16,25 @@ class CellElement {
 
   public element: HTMLElement
 
-  private _params: ICellElementParams
+  public params: ICellElementParams
 
   constructor (params: ICellElementProps) {
     this.element = this._generate()
-    this._params = { ...params, isClick: false, typeClick: undefined }
+    this.params = { ...params, isClick: false, typeClick: undefined }
   }
 
   public static new (params: ICellElementProps): CellElement {
     return new CellElement(params)
+  }
+
+  public leftClick (): void {
+    if (this.params.typeClick === undefined) {
+      if (this.params.type === TypeCell.VALUE) this.element.innerText = this.params.value.toString()
+      if (this.params.type === TypeCell.MINE) this.element.innerHTML = `<img width="100%" height="100%" src="${MineIcon}" alt="">`
+      this.element.className = `${TypeClassList.CELL} ${TypeClassList.ACTIVE_CELL}`
+      this.params.typeClick = TypeCell.VALUE
+      if (this.params.type === TypeCell.EMPTY) this.params.callback(this.params.y, this.params.x)
+    }
   }
 
   private _generate (): HTMLElement {
@@ -42,28 +52,19 @@ class CellElement {
 
   private _eventClick (event: Event): void {
     const ev = event as MouseEvent
-    if (TypeMouseClick.LEFT === ev.button) this._leftClick()
+    if (TypeMouseClick.LEFT === ev.button) this.leftClick()
     if (TypeMouseClick.RIGHT === ev.button) this._rightClick()
   }
 
   private _rightClick (): void {
-    if (this._params.typeClick === TypeCell.ICEBERG) {
+    if (this.params.typeClick === TypeCell.ICEBERG) {
       this.element.innerHTML = ''
-      this._params.typeClick = undefined
+      this.params.typeClick = undefined
       this.element.className = `${TypeClassList.CELL} ${TypeClassList.DEFAULT_CELL}`
-    } else if (this._params.typeClick === undefined) {
+    } else if (this.params.typeClick === undefined) {
       this.element.innerHTML = `<img src="${MineRightClickIcon}" alt="">`
       this.element.className = `${TypeClassList.CELL} ${TypeClassList.ACTIVE_CELL}`
-      this._params.typeClick = TypeCell.ICEBERG
-    }
-  }
-
-  private _leftClick (): void {
-    if (this._params.typeClick === undefined) {
-      if (this._params.type === TypeCell.VALUE) this.element.innerText = this._params.value.toString()
-      if (this._params.type === TypeCell.MINE) this.element.innerHTML = `<img width="100%" height="100%" src="${MineIcon}" alt="">`
-      this.element.className = `${TypeClassList.CELL} ${TypeClassList.ACTIVE_CELL}`
-      this._params.typeClick = TypeCell.VALUE
+      this.params.typeClick = TypeCell.ICEBERG
     }
   }
 
