@@ -1,0 +1,35 @@
+{
+  "name": "game",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "craco start"
+  },
+  "devDependencies": {
+    "@craco/craco": "^7.1.0",
+    "eslint": "8.18.0",
+    "eslint-import-resolver-typescript": "3.2.5",
+    "eslint-plugin-import": "2.26.0",
+    "eslint-plugin-react": "7.30.0",
+    "eslint-plugin-react-hooks": "4.6.0",
+    "stylelint": "14.9.1",
+    "stylelint-config-clean-order": "0.8.0",
+    "typescript": "^4.9.5"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  }
+}
